@@ -1,0 +1,590 @@
+---
+title: Predicting a waiter’s tip amount in Dollars based on the customers total bill,
+  gender(sex), time of the day, if the  customer is a smoker or not and size of the
+  group.
+author: "QIYU HUANG"
+date: "Dec 21st 2020"
+output:
+  pdf_document: default
+  html_document: default
+  fig_caption: yes
+  toc: yes
+  number_sections: yes
+  pandoc_args: ["-F","pandoc-crossref"]
+  word_document: default
+---
+
+## Github
+
+Code and data supporting this analysis is available at: https://github.com/cybernavily/Final.git'
+
+## Keywords
+
+Linear Regression,
+Robust Algorithms,
+Data Analysis,
+Descriptive Analytics,
+p-value,
+t-statistic,
+R2 value,
+significance level,
+supervised learning.
+
+## Abstract.
+
+An Analysis of Waiters tip amounts  given the customers total bill, gender(sex), time of the day, smoker and size of the group. This study seeks to analyse the factors that influence the tipping behavior of customers: The likelihood of a customer giving a tip and the size of the tip. 244 eating events were recorded in a restaurant used for this analysis. The data was reported in a collection of case studies for business statistics. The report indicates that the average tipping rate is 7.048% of the total bill. The overall analysis demonstrates that customers tipping decisions and tip sizes are functions of their social interest. It is safe to conclude that customers consider tipping more of a social norm rather than self-interested
+rational behavior.
+
+
+### Specifying the Research Question
+Is it possible to predict a waiters amount of tip in dollars based on the customers total bill, gender(sex), time of the day, smoker and size of the group
+
+## Introduction
+Tipping is the norm in restaurants all over the world. According to Lynn et al. (1993)The amount of tip varies depending on the nature of the customer and quality of service received. According to Azar (2007), the tip amount ranges from 15% to 20% of the total bill for excellent service. The aim of this project is to use machine learning, collaborative data filterting and Supervised learning to solve tabular data problems. We will analyse a dataset with 244 records with one waiters tips over a few months working in a restaurant.
+
+Studying customers tipping behavior can be helpful in measuring customer satisfaction (Rathore, 2015) and in turn restaurant managers can leverage such information to improve the quality of their services. Based on previous studies, tip size is reportedly increased by friendly service, good suggestions, excellent food, prompt delivery of the main course and check, a self-introduction by the waiter, and receiving separate checks("Introduction: The promise of collaborative public service delivery," 2019). The tip is decreased by waiting a long time for a beverage and being seated in a bad location.
+
+Servers also show that there are no differences in tipping behavior. Howerver, they have expressed that the effort required for some social groups in order to receive the same amount of tip is higher(Toporek, 2015). If this is the case then they would be more motivated to engage in cost-based statistical discrimination against groups that require more effort to serve.
+
+The independent variable is the amount of tip in Dollars. 
+Dependent variables are:
+
+The customers total bill.
+Customers gender(sex).
+Time of day.
+Is the customer a smoker or not?
+The size of the group
+
+
+
+## Methodology
+
+Thorough Data Cleaning
+In this step, we clean the dataset by checking for missing values.None was found. we also check for duplicates. Only one record was found but we shall use it since it is very likely to have duplicate records based on the variables in the data. We then ensure that each column has the correct datatype in preparation for further analysis and modelling.
+
+Univariate analysis
+Here we check the distribution of each and every column in a bid to understand how each varies. We also analyse the measures of central tendency for numerical columns and vlaue counts for categorical columns.
+
+Bivariate Analysis
+Analysing the relationships between variables in pairs. Some of the pairs include: Total_bill vs the tip amount, Gender distribution, gender vs smoker
+
+Regression Modelling: modelling the data using a multiple Linear Regression model.
+
+Conclusion
+Documenting the findings, reports and references.
+Was the analysis successful?
+Was the data sufficient?
+Was the statistical approach appropriate?
+How relevant is the analysis and who are the beneficiaries?
+
+
+##### Data Source and relevance
+
+Data: https://www.kaggle.com/jsphyg/tipping
+
+One  data set will be used to investigate the factors that influence how customers tip in restaurants.The dataset is from kaggle which is a credible data source for data science projects. The data has 244 rows and 7 columns which is enough to train and test the results of our model.
+One waiter recorded information about each tip he received over a period of a few months working in one restaurant.
+
+Can you predict the tip amount?
+
+## Model
+A Multiple Linear Regression was used for this analysis since we have more than one predictor variable. The coefficients then indicate which variables affect the dependent variable the most. Postive values depict a positive correlation while negative coefficients indicate low or no correlation. The coefficients are then used to predict the response variable.
+The general equation for a multiple linear regression is 
+
+y = a + b1x1 + b2x2 +...bnxn.
+
+y is the response variable.
+
+a, b1, b2...bn are the coefficients.
+
+x1, x2, ...xn are the predictor variables.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+getwd()
+```
+
+## Data Cleaning
+
+#### Loading the dataset
+```{r,eval=TRUE,echo=TRUE}
+
+library("readr")
+df <- read.csv("tips.csv")
+head(df)
+```
+#### Previewing the top of the dataset
+```{r, eval=TRUE, echo=TRUE, error=FALSE}
+tips_df <- data.frame(df)
+head(tips_df)
+```
+#### Previewing the summary of the dataset
+```{r, eval=TRUE, echo=TRUE, error=FALSE}
+summary(tips_df)
+```
+#### Properties of the dataset
+
+
+#### Dimensions
+```{r, eval=TRUE, echo=TRUE}
+dim(tips_df)
+#The dataframe has 244 row entries and 7 columns
+```
+
+##### Column Names
+```{r, eval=TRUE, echo=TRUE}
+colnames(tips_df)
+#The seven column names are:
+```
+
+
+
+#### Column data types
+```{r, eval=TRUE, echo=TRUE}
+sapply(tips_df, class)
+```
+
+## Data Cleaning
+
+## Missing values
+```{r, eval=TRUE, echo=TRUE}
+
+#Checking the sum of missing values per column
+colSums(is.na(tips_df))
+#there are no misssing values in the data
+```
+
+## Duplicates
+```{r, eval=TRUE, echo=TRUE}
+duplicated_rows <- tips_df[duplicated(tips_df),]
+duplicated_rows
+#there is one duplicate entry in the data
+#we shall retain the duplicate record because based on the coulmn values it is possible to have similar combinations
+```
+
+### Checking the appropriate datatypes for each column
+```{r,eval=TRUE, echo=TRUE}
+
+sapply(tips_df, class)
+```
+
+## Univarite analysis 
+
+```{r, eval=TRUE, echo=TRUE}
+#install.packages("pacman")
+figure_nums <- captioner::captioner(prefix = "Fig")
+```
+
+#### Total Bill
+
+
+```{r, fig.cap="Plot1: Histogram of Total bill", eval=TRUE, echo=TRUE}
+#Checking customer spending in the restaurant (Bill)
+
+# mean
+mean(tips_df$total_bill)
+
+# median
+median(tips_df$total_bill)
+
+# mode
+x <- tips_df$total_bill        
+#sort(x)
+names(table(x))[table(x)==max(table(x))]
+#each of the values printed below appear thrice in the dataset
+
+
+#distribution
+hist(x, col=c("darkorange"))
+
+```
+
+
+
+Most of the customers spend between 10 and 25 dollars in the restaurant
+
+The users spend an average 19.78594 dollars for their meals.
+
+The modal amount spent on the site "13.42"
+
+The median amount spent is 17.795.
+
+The distribution above is right-skewed.
+
+
+#### Tip
+```{r, fig.cap="Plot2: Histogram of Tips", eval=TRUE, echo=TRUE}
+
+# mean
+mean(tips_df$tip)
+
+# median
+median(tips_df$tip)
+
+# mode
+a <- tips_df$tip        
+#sort(x)
+names(table(a))[table(a)==max(table(a))]
+
+#distribution
+hist(a, col=c("pink"))
+
+```
+
+
+The average amount of tips is 2.998279 dollars
+
+The modal tip is 2 dollars
+
+The median tip is 2.9 dollars.
+
+The distribution above is right-skewed.
+
+The highest frequency is 0-5 dollars.
+
+The highest tip given is 7 dollars.
+
+### Sex
+
+#### Male            
+```{r,fig.cap="Plot3: Barplot of Gender", eval=TRUE, echo=TRUE}
+#gender of the user
+# measures of central tendency
+
+unique(factor(tips_df$sex))
+
+gender_df <- table(tips_df$sex)
+#distribution
+barplot(gender_df, main="Gender Distribution",col=c("darkgreen"),xlab="Gender")
+```
+
+The gender distribution is not equal. The males are twice the females. 
+
+This also means that most people who eat in restaurants are male.
+
+#### Smoker            
+```{r, fig.cap="Plot4: Barplot of Smokers", eval=TRUE, echo=TRUE}
+#This column indicates whether a customer is a smoker or not.
+
+unique(factor(tips_df$smoker))
+
+smoker_df <- table(tips_df$smoker)
+#distribution
+barplot(smoker_df, main="Smoker Distribution",col=c("brown"),xlab="Smoker")
+```
+
+Most of the customers who visit the restaurant are not smokers and the number of non-smokers are twice the number of smokers.
+
+
+#### Day            
+```{r, fig.cap="Plot5: Barplot of Days", eval=TRUE, echo=TRUE}
+#Day of the week
+
+unique(factor(tips_df$day))
+
+day_df <- table(tips_df$day)
+#distribution
+barplot(day_df, main="Day of the Week",col=c("yellow"),xlab="Day")
+```
+
+The data was obtained from Thursday through to Sunday
+
+Friday has the least  number of customers.
+
+Satruday has the most number of customers.
+
+Saturday and Sunday are the busiest days.
+
+
+#### Time            
+```{r, fig.cap="Plot6: Barplot of Time", eval=TRUE, echo=TRUE}
+#Time of Day
+
+unique(factor(tips_df$time))
+
+time_df <- table(tips_df$time)
+#distribution
+barplot(time_df, main="Time Distribution",col=c("darkblue"),xlab="Time")
+```
+
+Most of the clients have dinner at the restaurant as opposed to having lunch there.
+
+#### Size           
+```{r, fig.cap="Plot7: Barplot of Size", eval=TRUE, echo=TRUE}
+
+unique(factor(tips_df$size))
+
+size_df <- table(tips_df$size)
+#distribution
+barplot(size_df, main="Size Distribution",col=c("purple"),xlab="size")
+```
+
+The most popular number for the amount of diners is 2.
+
+very few customers visit the restaurant by themselves.
+
+Groups of 3 and 4 are abit common.
+
+there are no groups for more than six customers in one sitting.
+
+
+## Bivariate Analysis and Multivariate Graphical Data Analysis
+```{r, eval=TRUE,echo=TRUE}
+
+#substettng the data for further numerical analysis
+tips_df2 <- subset(tips_df, select = c(total_bill,tip,size  ))
+
+head(tips_df2)
+```
+
+### Correlation
+```{r,eval=TRUE,echo=TRUE}
+#The default method is Pearson, but we can also compute Spearman or Kendall coefficients.
+mydata = cor(tips_df2, method = c("spearman"))
+mydata1= cor(tips_df2, method = c("kendall"))
+mydata2= cor(tips_df2, method = c("pearson"))
+
+mydata #spearman
+
+mydata1 #kendall
+
+mydata2 #pearson
+
+```
+
+
+Using the 3 correlation coefficients to get the correlation between the features, we can see that the correlation is average in most cases.
+
+This means that most of the variables are somewhat dependent of each other
+
+Significance levels (p-values) can also be generated using the rcorr function which is
+
+found in the Hmisc package.
+
+```{r, fig.cap="Plot8: Corrplot of Total_bill, Tips and Size", eval=TRUE, echo=TRUE}
+#mydata.coeff = mydata.rcorr$r
+#mydata.p = mydata.rcorr$P
+library(corrplot)
+corrplot(mydata)
+```
+
+
+
+A default correlation matrix plot (called a Correlogram) is generated. Positive
+
+correlations are displayed in a blue scale while negative correlations are displayed 
+
+in a red scale
+
+There is average positive correlation between the variables in the data.
+
+## The Plots below are scatterplots of a few pairs of variables
+
+#### Amount spent in the restaurant vs amount of tip
+```{r,fig.cap="Plot9: Plot of Amount spent vs Tips", eval=TRUE, echo=TRUE}
+# Libraries
+library(ggplot2)
+
+# create data
+amount_spent <- tips_df$total_bill
+Tip <- tips_df$tip
+data <- data.frame(amount_spent,Tip)
+
+# Plot
+ggplot(data, aes(x=amount_spent, y=Tip)) + geom_point()
+#positive non-linear correlation
+
+avg_tip_percentage <- transform(tips_df, new = amount_spent / Tip)
+mean(avg_tip_percentage[["new"]])
+#The average tipping rate is 7.048%
+```
+
+
+#### sex VS Smoker 
+```{r,eval=TRUE,echo=TRUE}
+library(tidyverse)
+#Male respondents who clicked on an add
+dim(tips_df%>% filter(sex == 'Male', smoker == 'No'))
+#97
+
+#Male respondents did not click on an add
+dim(tips_df%>% filter(sex == 'Female', smoker == 'No'))
+#54
+
+#Female respondents who clicked on an add 
+dim(tips_df%>% filter(sex == 'Male' , smoker == 'Yes'))
+# 60
+
+#Female respondents who clicked did not on an add
+dim(tips_df%>% filter(sex == 'Female', smoker == 'Yes'))
+# 33
+```
+
+
+```{r, fig.cap="Plot10: Barplot of Gender vs Smoker", eval=TRUE,echo=TRUE}
+gender_vs_smoker <- c( 97 , 54 , 60 , 33 )
+
+# barchart with added parameters
+barplot(gender_vs_smoker, main = " gender_vs_smoker " , xlab = " Label ", ylab = " Count ",
+names.arg = c("Male&Non-smoker Female&Non-smoker Male&Smoker Female&Smoker"),
+col = "darkred",
+horiz = FALSE)
+```
+
+There are more male smokers than female smokers.
+
+The number of male non-smokers is also high indicating a gender bias in the data.
+
+The number of female non-smokers is higher than that of female smokers.
+
+
+## Multivariate Analysis
+```{r,eval=TRUE,echo=TRUE}
+# A glimpse of the data
+library(dplyr)
+glimpse(tips_df2)
+head(tips_df)
+
+```
+
+
+```{r, eval=TRUE,echo=TRUE}
+#subsetting the data
+tips_df3 <- subset(tips_df, select = c(sex,smoker,day,time))
+
+head(tips_df3)
+```
+
+```{r,eval=TRUE,echo=TRUE}
+#converting the sex column to categorical variables.
+#Code
+tips_df4 <- as.data.frame(apply(tips_df3,2,function(x) {x<-as.numeric(factor(x,levels = unique(x)))}))
+
+head(tips_df4)
+
+```
+
+```{r,eval=TRUE,echo=TRUE}
+#confirming that we have the right number of unique values.
+
+#Code
+#how many unique items are in the sex column
+length(unique(unlist(tips_df4[c("sex")])))
+
+#how many unique items are in the smoker column
+length(unique(unlist(tips_df4[c("smoker")])))
+
+#hoe many unique items are in the day column
+length(unique(unlist(tips_df4[c("day")])))
+
+#hoe many unique items are in the time column
+length(unique(unlist(tips_df4[c("time")])))
+
+```
+
+
+```{r, eval=TRUE,echo=TRUE}
+# horizontal merge
+d <- merge(tips_df2, tips_df4, all="true")
+head(d)
+
+```
+
+
+
+### Modelling
+
+```{r,eval=TRUE,echo=TRUE}
+head(d)
+```
+
+### Linear Regression
+
+# Create Training and Test data 
+
+# 
+```{r,eval=TRUE,echo=TRUE}
+model <- lm(tip ~ total_bill+size+sex+smoker+day+time, data = d)
+summary(model)
+```
+
+The p-value is lower than the significance level which means that the model is statistically significant.
+
+Next, we examine the coefficients table to obtain the estimate of regression beta coefficients and the associated t-statitic p-values
+
+
+```{r,eval=TRUE,echo=TRUE}
+summary(model)$coefficient
+```
+
+The coefficients show us that total bill, time and size affect the size of the tip given 
+while sex, smoker and day do not affect tip amounts
+
+
+```{r,eval=TRUE,echo=TRUE}
+model2  <- lm(tip ~total_bill+size+time, data = d)
+summary(model2)
+```
+
+
+```{r,eval=TRUE,echo=TRUE}
+confint(model2)
+```
+
+```{r,eval=TRUE,echo=TRUE}
+sigma(model2)/mean(d$tip)
+```
+
+Our model has a 33% error rate
+
+The value for R2 indicates the level of accuracy of the model. The R2 value is 46.79 for both models. 
+
+To increase the level of accuracy, we can train using more data, use a more robust algorithm such as gradient boost.
+
+## Discussion
+
+Our analysis indicates that it is possible to predict a waiters with 67% accuracy. The factors that influence the amount of tip the most are the total bill, size of the group and the time when the meal was taken. The average tipping rate is 7.048% of the total bill. Tips are an acceptable secondary source of income for servers thus one can calculate their earnings if the total bill is known. 67% is the confidence level and it is abit low. Therefore, some enhancements are necessary to increase the level of accuracy.
+
+Conclusions:
+
+The analysis was completed successfully. A multiple Linear regression was used to predict a waiters tip amount using other dependent variables. The coefficients of sex is  -3.653905e-14 , that of being a smoker is -1.493559e-14 and for the day of week is -1.779964e-14. All the three coefficients are negative meaning that they do not affect the dependent variable(Amount of tip in dollars). The t-statistic for sex is -4.124228e-12, for that of smoker is -1.683664e-12 and day is -2.842765e-12 which further supports previous findings that the three variables have a negative relationship with the dependent variable.
+
+
+#### Weaknesses of the analysis.
+
+The dataset had 244 records which means that the data may be insuffucient for modelling.
+
+Some of the variables sucha as sex, smoker and day do not influence tipping decisions. 
+
+#### Future steps of the analysis.
+
+using a larger dataset
+
+Using variables that with a positive correlation towards the dependent variable.
+
+
+## References:
+
+Data: https://www.kaggle.com/jsphyg/tipping
+
+Bryant, P. G. and Smith, M (1995) Practical Data Analysis: Case Studies in Business Statistics. Homewood, IL: Richard D. Irwin Publishing
+
+Introduction: The promise of collaborative public service delivery. (2019). Collaboration in Public Service Delivery, 1-1. https://doi.org/10.4337/9781788978583.00008
+
+Rathore, S. (2015). Capturing, analyzing, and managing word-of-Mouth in the digital marketplace. IGI Global.
+
+Toporek, A. (2015). Be your customer's hero: Real-world tips and techniques for the service front lines. AMACOM.
+
+
+
+
+
+
+
+
+
+
+
+
+
